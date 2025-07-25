@@ -1,107 +1,148 @@
-use std::io;
-
-use color_eyre::owo_colors::OwoColorize;
-use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
+use crate::{
+    components::{
+        colors::ColorComponent,
+        image::{CustomImage, ImageState, ImageStruct},
+        input_bar::Input,
+    },
+    helpers::config::Config,
+    pages::{
+        apply_page::{ApplyPage, ApplyTui, ImageData},
+        image_input::{ImageInputPage, ImageInputTui},
+        warning_page::WarningPage,
+    },
+    traits::get_input::DefaultInputComponent,
+};
+use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
+use futures::{FutureExt, StreamExt};
 use ratatui::{
-    buffer::Buffer,
-    layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Stylize},
-    symbols::border,
-    text::{Line, Text},
-    widgets::{Block, Borders, Paragraph, Widget},
+    layout::{Alignment, Constraint, Direction, Layout},
+    style::Stylize,
+    text::Line,
+    widgets::{Block, BorderType, Paragraph, Widget},
     DefaultTerminal, Frame,
 };
-#[derive(Debug, Default)]
+use tokio::sync::mpsc::{self, Receiver, Sender};
+
 pub struct App {
-    pub exit: bool,
-    pub counter: u8
+    pub tx: Sender<Tui>,
+    rx: Receiver<Tui>,
+    exit: bool,
+    current_page: Pages,
+    image_page: ImageInputPage,
+    apply_page: ApplyPage,
+    warning_page: WarningPage,
+    cfg: Config,
+}
+
+pub enum Tui {
+    Event(Event),
+    ChangePage(Pages),
+    ImagePage(ImageInputTui),
+    ApplyPage(ApplyTui),
+}
+
+pub enum Pages {
+    Image,
+    Apply(ImageData),
+    WarningPage,
 }
 
 impl App {
-    pub fn run(&mut self, mut terminal: DefaultTerminal) -> Result<(), ()> {
+    pub fn new() -> Self {
+        let cfg = Config::new();
+        let (tx, rx) = mpsc::channel::<Tui>(10);
+        Self {
+            exit: false,
+            current_page: if cfg.is_first_time() {
+                Pages::WarningPage
+            } else {
+                Pages::Image
+            },
+            image_page: ImageInputPage::new(tx.clone()),
+            apply_page: ApplyPage::new(tx.clone(), cfg.clone()),
+            warning_page: WarningPage::new(),
+            cfg,
+            tx,
+            rx,
+        }
+    }
+
+    fn handle_event(&mut self, event: Tui) {
+        match event {
+            Tui::Event(event) => {
+                match event {
+                    Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                        match key_event.code {
+                            KeyCode::Char(ch) if key_event.modifiers == KeyModifiers::CONTROL => {
+                                match ch {
+                                    'q' => {
+                                        self.exit = true;
+                                        return;
+                                    }
+                                    _ => {}
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                    _ => {}
+                }
+                match self.current_page {
+                    Pages::Apply(_) => {
+                        self.apply_page.handle_event(event.into());
+                    }
+                    Pages::Image => {
+                        self.image_page.handle_event(event.into());
+                    }
+                    Pages::WarningPage => {}
+                }
+            }
+            Tui::ImagePage(event) => {
+                self.image_page.handle_event(event);
+            }
+            Tui::ChangePage(page) => {
+                match &page {
+                    Pages::Apply(data) => {
+                        self.apply_page.set_data(data.clone());
+                    }
+                    Pages::Image => {}
+                    Pages::WarningPage => {}
+                }
+                self.current_page = page;
+            }
+            Tui::ApplyPage(event) => {
+                self.apply_page.handle_event(event);
+            }
+        }
+    }
+
+    pub async fn run(&mut self, mut terminal: DefaultTerminal) -> Result<(), ()> {
+        let mut reader = crossterm::event::EventStream::new();
         while !self.exit {
             terminal.draw(|frame| self.draw(frame)).unwrap();
-            match event::read().unwrap() {
-                // it's important to check that the event is a key press event as
-                // crossterm also emits key release and repeat events on Windows.
-                Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
-                    self.handle_key_event(key_event)
+            tokio::select! {
+                key_event = reader.next().fuse() => {
+                   self.handle_event(Tui::Event(key_event.unwrap().unwrap()));
+                },
+                event = self.rx.recv().fuse() => {
+                    self.handle_event(event.unwrap());
                 }
-                _ => {}
-            };
-        };
+            }
+        }
         Ok(())
     }
 
-    fn draw(&self, frame: &mut Frame) {
-        frame.render_widget(self, frame.area());
-    }
-
-    fn handle_key_event(&mut self, key_event: KeyEvent) {
-        match key_event.code {
-            KeyCode::Char('q') => self.exit(),
-            KeyCode::Left => self.decrement_counter(),
-            KeyCode::Right => self.increment_counter(),
-            _ => {}
+    fn draw(&mut self, frame: &mut Frame) {
+        match self.current_page {
+            Pages::Apply(_) => {
+                self.apply_page.draw(frame);
+            }
+            Pages::Image => {
+                self.image_page.draw(frame);
+            }
+            Pages::WarningPage => {
+                self.warning_page.draw(frame);
+            }
         }
-    }
-
-    fn exit(&mut self) {
-        self.exit = true;
-    }
-
-    fn increment_counter(&mut self) {
-        self.counter += 1;
-    }
-
-    fn decrement_counter(&mut self) {
-        if (self.counter == 0) {
-            return;
-        }
-        self.counter -= 1;
-    }
-}
-
-impl Widget for &App {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        let layout = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints(vec![
-                    Constraint::Percentage(50),
-                    Constraint::Percentage(50),
-                ])
-                .split(area);
-        let title = Line::from(" Counter App Tutorial ".bold());
-        let instructions = Line::from(vec![
-            " Decrement ".into(),
-            "<Left>".blue().bold(),
-            " Increment ".into(),
-            "<Right>".blue().bold(),
-            " Quit ".into(),
-            "<Q> ".blue().bold(),
-        ]);
-        let block = Block::bordered()
-            .title(title.centered())
-            .title_bottom(instructions.centered())
-            .border_set(border::THICK);
-
-        let counter_text = Text::from(vec![Line::from(vec![
-            "Value: ".into(),
-            self.counter.to_string().yellow(),
-        ])]);
-        
-        if (self.counter > 10) {
-            
-            Paragraph::new("Top")
-                .block(Block::new().borders(Borders::ALL))
-                .fg(Color::White)
-                .bg(Color::Black)
-                .render(layout[0], buf);
-        }
-
-        Paragraph::new(counter_text)
-            .centered()
-            .block(block)
-            .render(layout[1], buf);
     }
 }
