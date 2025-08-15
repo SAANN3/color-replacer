@@ -38,6 +38,7 @@ pub enum ImageInputTui {
     UpdateImage(ImageState),
     PathChanged(String),
     ContinueButton(),
+    UsePath(String),
 }
 
 impl From<ImageInputTui> for Tui {
@@ -147,6 +148,9 @@ impl ImageInputPage {
             ImageInputTui::PathChanged(path) => {
                 self.image_ui.process_image(self.tx.clone(), path.clone());
                 self.colors.set_path(path);
+            }
+            ImageInputTui::UsePath(path) => {
+                self.image_path.change_value(path);
             }
         }
     }

@@ -1,19 +1,87 @@
 mod app;
+pub mod components;
+pub mod helpers;
+pub mod pages;
 mod tabs;
 pub mod traits;
-pub mod components;
-pub mod pages;
-pub mod helpers;
-use color_eyre::Result;
+use std::path::PathBuf;
+
 use app::App;
+use clap::{command, Parser};
+use color_eyre::Result;
+use helpers::config::Config;
+use pages::image_input::ImageInputTui;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+/// A program that extract colors from image and applies them to files
+struct Args {
+    /// Custom path to config file
+    #[arg(short, long)]
+    path_cfg: Option<PathBuf>,
+    /// Enables cli mode
+    #[arg(short, long, default_missing_value = "true", default_value = "false")]
+    cli: bool,
+    /// Path to image that will be used in cli mode or opened in tui
+    #[arg(short, long)]
+    image: Option<PathBuf>,
+    /// Silence all output in cli mode
+    #[arg(short, long, default_missing_value = "true", default_value = "false")]
+    silence: bool,
+}
+
+pub struct Logger {
+    pub silent: bool,
+}
+impl Logger {
+    pub fn log(&self, data: &str) {
+        if !self.silent {
+            println!("{}", data)
+        }
+    }
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    color_eyre::install()?;
-    let mut terminal = ratatui::init();
-    terminal.clear().unwrap();
-    App::new().run(terminal).await.unwrap();
-    ratatui::restore();
-    Ok(())
+    let args = Args::parse();
+    let cfg = if let Some(path) = args.path_cfg {
+        Config::from_path(path)
+    } else {
+        Config::new()
+    };
+    if args.cli {
+        let logger = Logger {
+            silent: args.silence,
+        };
+        logger.log("Getting colors from image...");
+        let image = args
+            .image
+            .expect("--image parameter shoudn't be empty!")
+            .into_os_string()
+            .into_string()
+            .expect("Failed to use image path");
+        let colors = image_palette::load(&image).expect("Failed to extract colors from image");
+        let colors = colors.iter().map(|x| x.color().to_string()).collect::<Vec<String>>();
+        logger.log(&format!("Got colors from image {:?}", colors));
+        logger.log("Replacing files...");
+        cfg.process(&colors);
+        logger.log("Completed!");
+        Ok(())
+    } else {
+        color_eyre::install()?;
+        let mut terminal = ratatui::init();
+        terminal.clear().unwrap();
+        let mut app = App::new(cfg);
+        if let Some(path) = args.image {
+            app.tx
+                .send(
+                    ImageInputTui::UsePath(path.into_os_string().into_string().unwrap()).into(),
+                )
+                .await
+                .expect("Failed to use image path");
+        }
+        app.run(terminal).await.unwrap();
+        ratatui::restore();
+        Ok(())
+    }
 }
-

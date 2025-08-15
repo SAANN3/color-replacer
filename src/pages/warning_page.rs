@@ -41,16 +41,13 @@ impl WarningPage {
             .split(frame.area());
         let example_layout = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints(vec![
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-            ])
+            .constraints(vec![Constraint::Fill(1), Constraint::Fill(1)])
             .split(layout[1]);
         let warning: Paragraph<'_> = Paragraph::new(Text::from(vec![
             "It seems that your config file is not yet configured, you need to edit it first"
                 .into(),
             "If it your first time it will contain an example".into(),
-            format!("Config file path: {:?}", Config::get_config_path()).into(),
+            format!("Config default file path: {:?}", Config::get_config_path()).into(),
             "Also set first_time to false in order to continue".into(),
         ]))
         .block(Block::bordered().border_type(BorderType::Rounded))
@@ -84,6 +81,5 @@ impl WarningPage {
         frame.render_widget(warning, *layout.first().unwrap());
         frame.render_widget(example_in, example_layout[0]);
         frame.render_widget(example_out, example_layout[1]);
-
     }
 }

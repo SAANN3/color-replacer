@@ -1,6 +1,6 @@
 [package]
 name = "test"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["SAANN3 <95036865+SAANN3@users.noreply.github.com>"]
 license = "MIT"
 edition = "2021"
@@ -19,3 +19,4 @@ image-palette = "0.1.1"
 dirs = "6.0.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
+clap = { version = "4.5.41", features = ["derive"] }

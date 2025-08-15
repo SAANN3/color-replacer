@@ -27,14 +27,22 @@ pub struct FirstTimeStruct {
 
 impl ReplaceFile {
     pub fn replace_files(&self, colors: &Vec<String>) {
-        let mut file_in = fs::File::open(self.from.clone()).expect(&format!("Failed to open 'from' file {:?}", self.from));
-        let mut file_out = fs::File::options().write(true).open(self.to.clone()).expect(&format!("Failed to open 'to' file {:?}", self.from));
+        let mut file_in = fs::File::open(self.from.clone())
+            .expect(&format!("Failed to open 'from' file {:?}", self.from));
+        let mut file_out = fs::File::options()
+            .write(true)
+            .open(self.to.clone())
+            .expect(&format!("Failed to open 'to' file {:?}", self.from));
         let mut data = String::new();
-        file_in.read_to_string(&mut data).expect(&format!("Failed to read 'from' file {:?}", self.from));
+        file_in
+            .read_to_string(&mut data)
+            .expect(&format!("Failed to read 'from' file {:?}", self.from));
         for i in 0..colors.len() {
-           data = data.replace(&Config::replace_key(i as u8), &colors[i as usize]);
+            data = data.replace(&Config::replace_key(i as u8), &colors[i as usize]);
         }
-        file_out.write_all(data.as_bytes()).expect(&format!("Failed to write into file {:?}", self.to));
+        file_out
+            .write_all(data.as_bytes())
+            .expect(&format!("Failed to write into file {:?}", self.to));
     }
 }
 
@@ -50,13 +58,16 @@ impl Config {
             let mut file = fs::File::create(&config_file).unwrap();
             file.write_all(
                 serde_json::to_string_pretty(&Config {
-                    files: vec![ReplaceFile {
-                        from: "/example/path/from".into(),
-                        to: "/example/path/to".into(),
-                    }, ReplaceFile {
-                        from: "/example/path/from2".into(),
-                        to: "/example/path/to2".into(),
-                    }],
+                    files: vec![
+                        ReplaceFile {
+                            from: "/example/path/from".into(),
+                            to: "/example/path/to".into(),
+                        },
+                        ReplaceFile {
+                            from: "/example/path/from2".into(),
+                            to: "/example/path/to2".into(),
+                        },
+                    ],
                     warning: FirstTimeStruct {
                         first_time: true,
                         text: "Set first_time to false in order to continue!".to_string(),
@@ -74,22 +85,18 @@ impl Config {
                 },
             };
         };
-        let mut file =
-            fs::File::open(&config_file).expect(&format!("Couldn't open file {:?}", config_file));
-        let cfg: Config = {
-            let mut buf = String::new();
-            serde_json::from_str({
-                file.read_to_string(&mut buf)
-                    .expect(&format!("Couldn't read file {:?}", config_file));
-                &buf.clone()
-            })
-            .expect(&format!(
-                "Failed to serialize config file {:?}",
-                config_file
-            ))
-        };
-        cfg
+        Config::from_path(config_file)
     }
+
+    pub fn from_path(path: PathBuf) -> Config {
+        let mut file = fs::File::open(&path).expect(&format!("Couldn't open file {:?}", path));
+        let mut buf = String::new();
+        file.read_to_string(&mut buf)
+            .expect(&format!("Couldn't read file {:?}", path));
+        serde_json::from_str(&buf)
+            .expect(&format!("Failed to serialize config file {:?}", path))
+    }
+
     pub fn is_first_time(&self) -> bool {
         self.warning.first_time
     }
@@ -110,7 +117,7 @@ impl Config {
     pub fn get_files(&self) -> Vec<ReplaceFile> {
         self.files.clone()
     }
-    
+
     pub fn replace_key(key: u8) -> String {
         format!("$[{key}]")
     }

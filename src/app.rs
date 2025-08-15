@@ -48,8 +48,7 @@ pub enum Pages {
 }
 
 impl App {
-    pub fn new() -> Self {
-        let cfg = Config::new();
+    pub fn new(cfg: Config) -> Self {
         let (tx, rx) = mpsc::channel::<Tui>(10);
         Self {
             exit: false,

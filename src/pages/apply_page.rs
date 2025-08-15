@@ -23,7 +23,10 @@ use ratatui::{
     widgets::{Block, BorderType, Paragraph, Widget},
     DefaultTerminal, Frame,
 };
-use tokio::{sync::mpsc::{self, Receiver, Sender}, time::sleep};
+use tokio::{
+    sync::mpsc::{self, Receiver, Sender},
+    time::sleep,
+};
 
 pub struct ApplyPage {
     pub continue_button: Button,
@@ -120,7 +123,7 @@ impl ApplyPage {
                     tx.send(ApplyTui::Delayed.into()).await.unwrap();
                 });
                 self.completed = true;
-            },
+            }
             ApplyTui::Delayed => {
                 self.continue_button.change_title("Replace");
             }
@@ -161,8 +164,7 @@ impl ApplyPage {
         );
         frame.render_widget(ix, *layout.last().unwrap());
 
-        let files = self.cfg
-                .get_files();
+        let files = self.cfg.get_files();
         let from_block = Paragraph::new(Text::from(
             files
                 .iter()
