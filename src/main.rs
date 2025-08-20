@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use app::App;
 use clap::{command, Parser};
 use color_eyre::Result;
-use helpers::config::Config;
+use helpers::config::{Config, ReplaceColors};
 use pages::image_input::ImageInputTui;
 
 #[derive(Parser, Debug)]
@@ -63,6 +63,11 @@ async fn main() -> Result<()> {
         let colors = image_palette::load(&image).expect("Failed to extract colors from image");
         let colors = colors.iter().map(|x| x.color().to_string()).collect::<Vec<String>>();
         logger.log(&format!("Got colors from image {:?}", colors));
+        let colors = ReplaceColors {
+            primary: colors[0].clone(),
+            secondary: colors[1].clone(),
+            tertiary: colors[2].clone(),
+        };
         logger.log("Replacing files...");
         cfg.process(&colors);
         logger.log("Completed!");

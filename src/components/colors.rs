@@ -23,6 +23,10 @@ impl ColorComponent {
         }
     }
 
+    pub fn set_colors(&mut self, colors: Vec<String>) {
+        self.state = Some(State::COLORS(colors));
+    }
+
     pub fn get_data(&self) -> Option<Vec<String>> {
         if let Some(state) = &self.state {
             match state {

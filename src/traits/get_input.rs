@@ -27,10 +27,10 @@ pub fn get_axis(key_event: &KeyEvent) -> Axis {
 pub trait InputComponent{
     fn set_focused(&mut self, focused: bool);
     fn handle_key_event(&mut self, key_event: &KeyEvent);
-    fn keep_focus_x(&mut self, _axis: &Horizontal) -> bool {
+    fn keep_focus_x(&mut self, axis: &Horizontal) -> bool {
         false
     }
-    fn keep_focus_y(&mut self, _axis: &Vertical) -> bool {
+    fn keep_focus_y(&mut self, axis: &Vertical) -> bool {
         false
     }
 }

@@ -6,7 +6,7 @@ use crate::{
         image::{CustomImage, ImageState, ImageStruct},
         input_bar::Input,
     },
-    helpers::config::Config,
+    helpers::config::{Config, ReplaceColors},
     traits::{
         focus_tracker::FocusTracker,
         get_input::{get_axis, DefaultInputComponent, InputComponent},
@@ -53,21 +53,23 @@ impl WarningPage {
         .block(Block::bordered().border_type(BorderType::Rounded))
         .alignment(Alignment::Center);
 
-        let example_in: Paragraph<'_> = Paragraph::new(Text::from(vec![
-            format!("param1  = {}", Config::replace_key(0)).into(),
-            "...".into(),
-            format!("param16 = {}", Config::replace_key(15)).into(),
-        ]))
+        let example_in: Paragraph<'_> = Paragraph::new(Text::from(
+            ReplaceColors::<String>::get_params()
+                .iter()
+                .map(|x| format!("param  = {}", Config::replace_key(x.clone())).into())
+                .collect::<Vec<Line>>(),
+        ))
         .block(
             Block::bordered()
                 .border_type(BorderType::Rounded)
                 .title("Example of 'from' file"),
         );
-        let example_out: Paragraph<'_> = Paragraph::new(Text::from(vec![
-            format!("param1  = #ffffff").into(),
-            "...".into(),
-            format!("param16 = #030303").into(),
-        ]))
+        let example_out: Paragraph<'_> =Paragraph::new(Text::from(
+            ReplaceColors::<String>::get_params()
+                .iter()
+                .map(|x| "param = #ffffff".into())
+                .collect::<Vec<Line>>(),
+        ))
         .block(
             Block::bordered()
                 .border_type(BorderType::Rounded)

@@ -61,11 +61,11 @@ impl FocusTracker {
             }
             Axis::Vertical(axis) => {
                 match axis {
-                    Vertical::Down => {
+                    Vertical::Up => {
                         self.current.0 = self.current.0.saturating_sub(1);
                         
                     }
-                    Vertical::Up => {
+                    Vertical::Down => {
                         self.current.0 = self.current.0.saturating_add(1);
                         if self.current.0 >= self.items.len() as u64 {
                             self.current.0 = self.items.len().saturating_sub(1) as u64;

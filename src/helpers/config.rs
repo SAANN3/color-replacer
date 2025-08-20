@@ -25,8 +25,28 @@ pub struct FirstTimeStruct {
     text: String,
 }
 
+
+pub struct ReplaceColors<T> {
+    pub primary: T,
+    pub secondary: T,
+    pub tertiary: T,
+}
+
+impl<T> ReplaceColors<T> {
+    pub fn get_params() -> Vec<String> {
+        vec!["primary", "secondary", "tertiary"].iter().map(|x| x.to_string()).collect()
+    }
+    pub fn get_pairs(&self) -> Vec<(String, &T)> {
+        vec![
+            ("primary".into()  ,  &self.primary),
+            ("secondary".into(), &self.secondary),
+            ("tertiary".into() , &self.tertiary)
+        ]
+    }
+}
+
 impl ReplaceFile {
-    pub fn replace_files(&self, colors: &Vec<String>) {
+    pub fn replace(&self, colors: &ReplaceColors<String>) {
         let mut file_in = fs::File::open(self.from.clone())
             .expect(&format!("Failed to open 'from' file {:?}", self.from));
         let mut file_out = fs::File::options()
@@ -37,8 +57,9 @@ impl ReplaceFile {
         file_in
             .read_to_string(&mut data)
             .expect(&format!("Failed to read 'from' file {:?}", self.from));
-        for i in 0..colors.len() {
-            data = data.replace(&Config::replace_key(i as u8), &colors[i as usize]);
+
+        for (key, color) in colors.get_pairs() {
+            data = data.replace(&Config::replace_key(key), color);
         }
         file_out
             .write_all(data.as_bytes())
@@ -108,9 +129,9 @@ impl Config {
         path
     }
 
-    pub fn process(&self, colors: &Vec<String>) {
+    pub fn process(&self, colors: &ReplaceColors<String>) {
         for file in &self.files {
-            file.replace_files(colors);
+            file.replace(colors);
         }
     }
 
@@ -118,7 +139,7 @@ impl Config {
         self.files.clone()
     }
 
-    pub fn replace_key(key: u8) -> String {
+    pub fn replace_key(key: String) -> String {
         format!("$[{key}]")
     }
 }
