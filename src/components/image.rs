@@ -116,7 +116,7 @@ impl CustomImage {
             },
             ImageState::Loaded(data) => {
                 let ImageStruct {image, .. } = data;
-                let image_rect = image.size_for(&Resize::Scale(None), area);
+                let image_rect = image.size_for(Resize::Scale(None), area);
                 frame.render_stateful_widget(image_widget,
                     Self::center(inner_area, image_rect.width, image_rect.height), 
                     image
