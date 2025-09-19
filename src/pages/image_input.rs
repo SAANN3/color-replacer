@@ -172,7 +172,7 @@ impl ImageInputPage {
         let instructions = Line::from(vec![
             "CTRL + Q".blue().reversed(),
             ":Quit".into(),
-            " ".into(),
+            " | ".into(),
             "CTRL + H:".blue().reversed(),
             {
                 if self.colors.hex_colors {

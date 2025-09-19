@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{num::Saturating, time::Duration};
 
 use crate::{
     app::{Pages, Tui},
@@ -18,11 +18,7 @@ use crate::{
 use crossterm::event::{Event, KeyCode, KeyEventKind, KeyModifiers};
 use futures::{FutureExt, StreamExt};
 use ratatui::{
-    layout::{Alignment, Constraint, Direction, Layout, Margin},
-    style::Stylize,
-    text::{Line, Text},
-    widgets::{Block, BorderType, Paragraph, Widget},
-    DefaultTerminal, Frame,
+    layout::{Alignment, Constraint, Direction, Layout, Margin}, style::Stylize, symbols, text::{Line, Text}, widgets::{Block, BorderType, Paragraph, Widget}, DefaultTerminal, Frame
 };
 use tokio::{
     sync::mpsc::{self, Receiver, Sender},
@@ -201,7 +197,16 @@ impl ApplyPage {
             .constraints(vec![Constraint::Fill(1), Constraint::Fill(1)])
             .split(layout[2]);
 
-        let instructions = Line::from(vec!["CTRL + Q".blue().reversed(), ":Quit".into()]);
+        let instructions = Line::from(vec![
+            "CTRL + Q".blue().reversed(), 
+            ":Quit | ".into(),
+            "+(=)/-".blue().reversed(),
+            ":Lighten/Darken color | ".into(),
+            "R".blue().reversed(), 
+            ":Reset color | ".into(),
+            "Arrow keys to navigate".blue().reversed()
+
+        ]);
         let ix = Paragraph::new(instructions)
             .block(Block::bordered().border_type(BorderType::Rounded))
             .alignment(Alignment::Center);

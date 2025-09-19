@@ -113,6 +113,10 @@ impl ColorPicker {
         self.change_color_light(light);
 
     }
+
+    pub fn reset_color(&mut self) {
+        self.selected.custom_color = None;
+    }
 }
 
 impl InputComponent for ColorPicker {
@@ -121,13 +125,17 @@ impl InputComponent for ColorPicker {
             KeyCode::Right => self.set_pos(cmp::min(self.selected.pos + 1, self.colors.len() - 1)),
             KeyCode::Left => self.set_pos(self.selected.pos.checked_sub(1).unwrap_or(0)),
             KeyCode::Char(ch) => match ch {
-                '+' => {
+                '+' | '=' => {
                     self.lighten();
                 }
                 '-' => {
                     self.darken();
                 }
-                _ => {}
+                'r' => {
+                    self.reset_color();
+                }
+                _ => {
+                }
             },
             _ => {}
         }
