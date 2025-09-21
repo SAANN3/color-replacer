@@ -1,6 +1,6 @@
 [package]
 name = "color-replacer"
-version = "0.1.2"
+version = "0.1.0"
 authors = ["SAANN3 <95036865+SAANN3@users.noreply.github.com>"]
 license = "MIT"
 edition = "2021"

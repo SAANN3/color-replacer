@@ -326,7 +326,7 @@ dependencies = [
 
 [[package]]
 name = "color-replacer"
-version = "0.1.2"
+version = "0.1.0"
 dependencies = [
  "clap",
  "color-eyre",
