@@ -43,14 +43,14 @@ for example, 'from' file
 ```
 my_first_color = $[primary]
 my_second_color = $[secondary]
-thirdgsdgsdg = ((($[tertiary])))
+third = $[tertiary]
 $[primary]|$[secondary]|$[tertiary]
 ```
 and output, file 'to'
 ```
 my_first_color = #FFFFEA
 my_second_color = #D79475
-thirdgsdgsdg = (((#B6AADE)))
+third = #B6AADE
 #FFFFEA|#D79475|#B6AADE
 ```
 ## Params
