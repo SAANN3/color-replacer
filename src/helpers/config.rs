@@ -51,6 +51,7 @@ impl ReplaceFile {
             .expect(&format!("Failed to open 'from' file {:?}", self.from));
         let mut file_out = fs::File::options()
             .write(true)
+            .create(true)
             .open(self.to.clone())
             .expect(&format!("Failed to open 'to' file {:?}", self.from));
         let mut data = String::new();
