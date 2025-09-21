@@ -62,12 +62,12 @@ async fn main() -> Result<()> {
             .expect("Failed to use image path");
         let colors = image_palette::load(&image).expect("Failed to extract colors from image");
         let colors = colors.iter().map(|x| x.color().to_string()).collect::<Vec<String>>();
-        logger.log(&format!("Got colors from image {:?}", colors));
         let colors = ReplaceColors {
             primary: colors[0].clone(),
             secondary: colors[1].clone(),
             tertiary: colors[2].clone(),
         };
+        logger.log(&format!("Got colors from image {:?}", colors));
         logger.log("Replacing files...");
         cfg.process(&colors);
         logger.log("Completed!");

@@ -325,6 +325,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "color-replacer"
+version = "0.1.2"
+dependencies = [
+ "clap",
+ "color-eyre",
+ "crossterm",
+ "dirs",
+ "futures",
+ "image",
+ "image-palette",
+ "ratatui",
+ "ratatui-image",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-util",
+ "tui-scrollview",
+]
+
+[[package]]
 name = "color-spantrace"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1714,26 +1734,6 @@ name = "target-lexicon"
 version = "0.12.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61c41af27dd6d1e27b1b16b489db798443478cef1f06a660c96db617ba5de3b1"
-
-[[package]]
-name = "test"
-version = "0.1.1"
-dependencies = [
- "clap",
- "color-eyre",
- "crossterm",
- "dirs",
- "futures",
- "image",
- "image-palette",
- "ratatui",
- "ratatui-image",
- "serde",
- "serde_json",
- "tokio",
- "tokio-util",
- "tui-scrollview",
-]
 
 [[package]]
 name = "thiserror"

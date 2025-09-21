@@ -203,9 +203,7 @@ impl ApplyPage {
             "+(=)/-".blue().reversed(),
             ":Lighten/Darken color | ".into(),
             "R".blue().reversed(), 
-            ":Reset color | ".into(),
-            "Arrow keys to navigate".blue().reversed()
-
+            ":Reset color".into(),
         ]);
         let ix = Paragraph::new(instructions)
             .block(Block::bordered().border_type(BorderType::Rounded))

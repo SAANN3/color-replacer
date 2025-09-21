@@ -24,7 +24,7 @@ pub struct FirstTimeStruct {
     first_time: bool,
     text: String,
 }
-
+#[derive(Debug)]
 
 pub struct ReplaceColors<T> {
     pub primary: T,
