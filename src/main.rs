@@ -11,6 +11,7 @@ use clap::{command, Parser};
 use color_eyre::Result;
 use helpers::config::{Config, ReplaceColors};
 use pages::image_input::ImageInputTui;
+use ratatui::style::Color;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -61,7 +62,10 @@ async fn main() -> Result<()> {
             .into_string()
             .expect("Failed to use image path");
         let colors = image_palette::load(&image).expect("Failed to extract colors from image");
-        let colors = colors.iter().map(|x| x.color().to_string()).collect::<Vec<String>>();
+        let colors = colors.0.iter().map(|x| {
+            let color = x.color();
+            Color::Rgb(color.0, color.1, color.2).to_string()
+        }).collect::<Vec<String>>();
         let colors = ReplaceColors {
             primary: colors[0].clone(),
             secondary: colors[1].clone(),

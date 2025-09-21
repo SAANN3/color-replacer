@@ -45,8 +45,12 @@ impl ColorComponent {
             Some(State::COLORS(
                 colors
                     .unwrap()
+                    .0
                     .iter()
-                    .map(|x| x.color().to_string())
+                    .map(|x| {
+                        let color = x.color();
+                        Color::Rgb(color.0, color.1, color.2).to_string()
+                    })
                     .collect::<Vec<String>>(),
             ))
         } else {
