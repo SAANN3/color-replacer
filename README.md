@@ -1,4 +1,4 @@
-# Color replacer
+# Color replacer [![GitHub release](https://img.shields.io/github/v/release/SAANN3/color-replacer?label=Download)](https://github.com/SAANN3/color-replacer/releases/latest)
 A program that extracts colors from an image, modifies them, and inserts the selected colors into other files.
 
 ![preview](./readme/preview.gif)
@@ -9,7 +9,6 @@ cd color-replacer
 cargo build --release
 ```
 The built binary will be located in ```target/release/color-replacer```
-
 ## Usage
 ### Tui
 1. Enter the absolute path to the image you want to use, then press Continue.
