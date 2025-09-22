@@ -49,10 +49,7 @@ impl ReplaceFile {
     pub fn replace(&self, colors: &ReplaceColors<String>) {
         let mut file_in = fs::File::open(self.from.clone())
             .expect(&format!("Failed to open 'from' file {:?}", self.from));
-        let mut file_out = fs::File::options()
-            .write(true)
-            .create(true)
-            .open(self.to.clone())
+        let mut file_out = fs::File::create(self.to.clone())
             .expect(&format!("Failed to open 'to' file {:?}", self.from));
         let mut data = String::new();
         file_in
