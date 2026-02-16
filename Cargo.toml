@@ -8,15 +8,15 @@ edition = "2021"
 [dependencies]
 color-eyre = "0.6.5"
 crossterm = { version ="0.29.0", features = ["event-stream", "default"]}
-image = "0.25.8"
-ratatui = "0.29.0"
-ratatui-image = "8.0.1"
-tui-scrollview = "0.5.1"
-tokio = { version = "1.47.1", features = ["full"] }
-tokio-util = "0.7.16"
-futures = "0.3.28"
-image-palette = "0.1.4"
+image = "0.25.9"
+ratatui = "0.30.0"
+ratatui-image = "10.0.5"
+tui-scrollview = "0.6.2"
+tokio = { version = "1.49.0", features = ["full"] }
+tokio-util = "0.7.18"
+futures = "0.3.32"
+image-palette = "0.1.8"
 dirs = "6.0.0"
-serde = { version = "1.0.226", features = ["derive"] }
-serde_json = "1.0.145"
-clap = { version = "4.5.48", features = ["derive"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+clap = { version = "4.5.58", features = ["derive"] }
